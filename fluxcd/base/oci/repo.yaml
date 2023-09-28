@@ -1,0 +1,11 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta2
+kind: HelmRepository
+metadata:
+  name: ecr
+  namespace: flux-system
+spec:
+  interval: 10m
+  type: oci
+  url: oci://721703199068.dkr.ecr.eu-west-1.amazonaws.com
+  secretRef:
+    name: secret-registry
