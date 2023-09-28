@@ -1,0 +1,17 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pocdemoapp
+spec:
+  interval: 10m
+  releaseName: poc
+  chart:
+    spec:
+      chart: poc
+      sourceRef:
+        kind: HelmRepository
+        name: poc
+        namespace: flux-system
+      version: "1.0.0"
+  values:
+    network: mainnet
