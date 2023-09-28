@@ -12,6 +12,6 @@ spec:
         kind: HelmRepository
         name: poc
         namespace: flux-system
-      version: "1.0.0"
+      version: "rc-1.0.0"
   values:
     network: mainnet

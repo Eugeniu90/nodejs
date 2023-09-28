@@ -5,7 +5,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./fluxcd/clusters/poc/dev/pocapp/
+  path: ./fluxcd/clusters/poc/dev/app/
   prune: true
   sourceRef:
     kind: GitRepository

@@ -1,10 +1,10 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: pocdemoapp
+  name: poc
 spec:
   interval: 10m
-  releaseName: poc
+  releaseName: dev
   chart:
     spec:
       chart: poc
@@ -14,4 +14,4 @@ spec:
         namespace: flux-system
       version: ">=0.1.0"
   values:
-    network: rinkeby #any other testnet network
+    network: rinkeby
