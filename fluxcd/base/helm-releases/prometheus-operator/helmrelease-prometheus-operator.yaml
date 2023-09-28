@@ -1,0 +1,93 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: prometheus-operator
+  namespace: flux-system
+spec:
+  interval: 5m
+  releaseName: prom
+  targetNamespace: monitoring
+  storageNamespace: monitoring
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: "19.2.3"
+      sourceRef:
+        kind: HelmRepository
+        name: helmrepo-prometheus-community
+        namespace: flux-system
+  upgrade:
+    remediation:
+      remediateLastFailure: true
+  values:
+    kubeControllerManager:
+      enabled: false
+    kubeScheduler:
+      enabled: false
+    kubeEtcd:
+      enabled: false
+    kubeProxy:
+      service:
+        selector:
+          component: kube-proxy
+    prometheus:
+      prometheusSpec:
+        serviceMonitorSelectorNilUsesHelmValues: false
+        podMonitorSelectorNilUsesHelmValues: false
+        storageSpec:
+          volumeClaimTemplate:
+            spec:
+              storageClassName: managed-premium
+              accessModes: ["ReadWriteOnce"]
+              resources:
+                requests:
+                  storage: 16Gi
+    grafana:
+      enabled: true
+      sidecar:
+        dashboards:
+          enabled: true
+        datasources:
+          enabled: true
+      persistence:
+        enabled: true
+        size: 1Gi
+        storageClassName: azurefile-grafana
+      adminPassword: "changeonfirstrun"
+      defaultDashboardsEnabled: true
+      ingress:
+        enabled: false
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/proxy-body-size: 100m
+        tls:
+          - hosts:
+              - grafana
+            secretName: tls-ingress
+        hosts: ["grafana"]
+    alertmanager:
+      config:
+        global:
+          resolve_timeout: 5m
+        route:
+          group_by: ['job']
+          group_wait: 30s
+          group_interval: 5m
+          repeat_interval: 15m
+          receiver: 'default-notify'
+          routes:
+          - match:
+              alertname: Watchdog
+            receiver: 'null'
+        receivers:
+        - name: 'null'
+        - name: 'default-notify'
+          webhook_configs:
+          - url: "http://prometheus-msteams.monitoring:2000/alert"
+            send_resolved: true
+        inhibit_rules:
+        - source_match:
+            severity: 'critical'
+          target_match:
+            severity: 'warning'
+          equal: ['alertname']

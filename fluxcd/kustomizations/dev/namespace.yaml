@@ -1,0 +1,16 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: dev-namespaces
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: ./fluxcd/clusters/poc/dev/namespaces/
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+    namespace: flux-system
+  dependsOn:
+    - name: flux-components
+      namespace: flux-system
