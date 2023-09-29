@@ -41,21 +41,27 @@ jobs:
         run: |
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
           TAG_NAME="latest"
-          
+
           if [ "$BRANCH_NAME" == "qa" ]; then
-            # Fetch the last tag name, increment it
-            LAST_TAG=$(git tag -l "qa-*" | sort -V | tail -n 1)
-            TAG_NUMBER=${LAST_TAG#qa-}
-            NEXT_TAG_NUMBER=$((TAG_NUMBER + 1))
-            TAG_NAME="qa-$NEXT_TAG_NUMBER"
+            LAST_TAG=$(git tag -l "0.*" | sort -V | tail -n 1)
+            if [ -z "$LAST_TAG" ]; then
+              TAG_NAME="0.1.0"
+            else
+              PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
+              NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
+              TAG_NAME="0.1.$NEW_PATCH_VERSION"
+            fi
           elif [ "$BRANCH_NAME" == "prod" ]; then
-            # Similar logic for prod tags
-            LAST_TAG=$(git tag -l "prod-*" | sort -V | tail -n 1)
-            TAG_NUMBER=${LAST_TAG#prod-}
-            NEXT_TAG_NUMBER=$((TAG_NUMBER + 1))
-            TAG_NAME="prod-$NEXT_TAG_NUMBER"
+            LAST_TAG=$(git tag -l "1.-*" | sort -V | tail -n 1)
+            if [ -z "$LAST_TAG" ]; then
+              TAG_NAME="1.0.0"
+            else
+              PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
+              NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
+              TAG_NAME="1.0.$NEW_PATCH_VERSION"
+            fi
           fi
-          
+
           echo "New tag: $TAG_NAME"
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
@@ -67,4 +73,6 @@ jobs:
       - name: Create Git Tag
         run: |
           git config user.name "github-actions"
-          git config user.email "github-actions
+          git config user.email "github-actions@github.com"
+          git tag ${{ env.TAG_NAME }}
+          git push origin ${{ env.TAG_NAME }}
