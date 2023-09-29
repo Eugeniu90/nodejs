@@ -85,6 +85,10 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
 
+      - name: Login to ECR (for Helm)
+        run: |
+          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
       - name: Update Helm Chart Version and start package process
         run: |
           cd helm/poc 
@@ -96,12 +100,4 @@ jobs:
 
           echo "Updated chart version to ${{ env.TAG_NAME }}."
           helm package .
-
-
-      - name: Login to ECR (for Helm)
-        run: |
-          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
-
-      - name: Push helm chart to ECR
-        run: |
-          helm push /home/runner/work/nodejs/nodejs/helm/poc/poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
+          helm push poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
