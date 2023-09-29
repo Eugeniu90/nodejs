@@ -22,7 +22,7 @@ jobs:
         run: npm install
 
       - name: Build Docker image
-        run: docker build -t my-app .
+        run: docker build -t nodejs .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -37,5 +37,5 @@ jobs:
 
       - name: Tag and push Docker image to Amazon ECR
         run: |
-          docker tag my-app:latest ${{ secrets.ECR_REGISTRY }}:my-app:latest
-          docker push ${{ secrets.ECR_REGISTRY }}:my-app:latest
+          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:nodejs:latest
+          docker push ${{ secrets.ECR_REGISTRY }}:nodejs:latest
