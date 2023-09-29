@@ -72,7 +72,6 @@ jobs:
 
       - name: Create Git Tag
         run: |
-          git remote set-url origin https://Eugeniu90:${{ secrets.GH_TOKEN }}@github.com/Eugeniu90/nodejs.git
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag ${{ env.TAG_NAME }}
