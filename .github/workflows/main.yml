@@ -13,6 +13,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # this is required to fetch all tags
 
       - name: Set up Node.js
         uses: actions/setup-node@v2
@@ -52,7 +54,7 @@ jobs:
               TAG_NAME="0.1.$NEW_PATCH_VERSION"
             fi
           elif [ "$BRANCH_NAME" == "prod" ]; then
-            LAST_TAG=$(git tag -l "1.-*" | sort -V | tail -n 1)
+            LAST_TAG=$(git tag -l "1.*" | sort -V | tail -n 1)
             if [ -z "$LAST_TAG" ]; then
               TAG_NAME="1.0.0"
             else
