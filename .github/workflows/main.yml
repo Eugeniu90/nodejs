@@ -37,5 +37,5 @@ jobs:
 
       - name: Tag and push Docker image to Amazon ECR
         run: |
-          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:nodejs:latest
-          docker push ${{ secrets.ECR_REGISTRY }}:nodejs:latest
+          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:latest
+          docker push ${{ secrets.ECR_REGISTRY }}:latest
