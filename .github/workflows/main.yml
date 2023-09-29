@@ -69,8 +69,8 @@ jobs:
 
       - name: Tag and push Docker image to Amazon ECR
         run: |
-          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
-          docker push ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
+          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
+          docker push ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
 
       - name: Create Git Tag
         run: |
@@ -87,7 +87,7 @@ jobs:
 
       - name: Login to ECR (for Helm)
         run: |
-          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}/nodejs
 
       - name: Update Helm Chart Version and start package process
         run: |
@@ -99,5 +99,6 @@ jobs:
           sed -i "s/version: .*/version: ${{ env.TAG_NAME }}/" Chart.yaml
 
           echo "Updated chart version to ${{ env.TAG_NAME }}."
-          helm package .
+          cd ../.. && helm package nodejs
           helm push nodejs-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
+        

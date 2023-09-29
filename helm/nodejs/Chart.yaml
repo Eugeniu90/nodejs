@@ -1,6 +1,0 @@
-apiVersion: v2
-name: nodejs
-description: A Helm chart for Kubernetes of poc demo app
-type: application
-version: 0.1.0
-appVersion: "1.16.0"
