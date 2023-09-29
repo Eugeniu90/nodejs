@@ -4,10 +4,10 @@ metadata:
   name: app
 spec:
   interval: 10m
-  releaseName: dev
+  releaseName: dummyapp
   chart:
     spec:
-      chart: poc
+      chart: nodejs
       sourceRef:
         kind: HelmRepository
         name: ecr
