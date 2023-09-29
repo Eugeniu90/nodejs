@@ -98,4 +98,4 @@ jobs:
 
       - name: Push helm chart to ECR
         run: |
-          helm push poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
+          helm push /home/runner/work/nodejs/nodejs/helm/poc/poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
