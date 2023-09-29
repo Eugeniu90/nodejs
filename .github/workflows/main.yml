@@ -69,7 +69,7 @@ jobs:
 
       - name: Tag and push Docker image to Amazon ECR
         run: |
-          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
+          docker tag nodejs:${{ env.TAG_NAME }} ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
           docker push ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
 
       - name: Create Git Tag
@@ -78,3 +78,28 @@ jobs:
           git config user.email "github-actions@github.com"
           git tag ${{ env.TAG_NAME }}
           git push origin ${{ env.TAG_NAME }}
+
+      - name: Install Helm
+        run: |
+          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+          chmod 700 get_helm.sh
+          ./get_helm.sh
+
+      - name: Package Helm chart
+        run: |
+          # Change directories to where your chart is located
+          cd helm
+          helm package . 
+
+      - name: Login to ECR (for Helm)
+        run: |
+          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+
+      - name: Push Helm chart to ECR
+        run: |
+          # Adjust the chart and version accordingly
+          CHART_NAME=nodejs
+          CHART_VERSION=${{ env.TAG_NAME }}
+          helm chart save $CHART_NAME-$CHART_VERSION.tgz ${{ secrets.ECR_REGISTRY }}/$CHART_NAME:$CHART_VERSION
+          helm chart push ${{ secrets.ECR_REGISTRY }}/$CHART_NAME:$CHART_VERSION
+
