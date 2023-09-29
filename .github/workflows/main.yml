@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
+      - qa
+      - prod
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -35,7 +36,35 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
 
+      - name: Generate tag based on branch
+        id: generate-tag
+        run: |
+          BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
+          TAG_NAME="latest"
+          
+          if [ "$BRANCH_NAME" == "qa" ]; then
+            # Fetch the last tag name, increment it
+            LAST_TAG=$(git tag -l "qa-*" | sort -V | tail -n 1)
+            TAG_NUMBER=${LAST_TAG#qa-}
+            NEXT_TAG_NUMBER=$((TAG_NUMBER + 1))
+            TAG_NAME="qa-$NEXT_TAG_NUMBER"
+          elif [ "$BRANCH_NAME" == "prod" ]; then
+            # Similar logic for prod tags
+            LAST_TAG=$(git tag -l "prod-*" | sort -V | tail -n 1)
+            TAG_NUMBER=${LAST_TAG#prod-}
+            NEXT_TAG_NUMBER=$((TAG_NUMBER + 1))
+            TAG_NAME="prod-$NEXT_TAG_NUMBER"
+          fi
+          
+          echo "New tag: $TAG_NAME"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+
       - name: Tag and push Docker image to Amazon ECR
         run: |
-          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:latest
-          docker push ${{ secrets.ECR_REGISTRY }}:latest
+          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
+          docker push ${{ secrets.ECR_REGISTRY }}:${{ env.TAG_NAME }}
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions
