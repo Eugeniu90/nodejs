@@ -74,10 +74,14 @@ jobs:
 
       - name: Create Git Tag
         run: |
+          if [ "$BRANCH_NAME" == "qa" ] || [ "$BRANCH_NAME" == "prod" ]; then
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git tag ${{ env.TAG_NAME }}
           git push origin ${{ env.TAG_NAME }}
+          else 
+           echo "Main branch detected, skipping tag"
+          fi
 
       - name: Install Helm
         run: |
