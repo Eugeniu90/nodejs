@@ -10,7 +10,7 @@ spec:
       chart: poc
       sourceRef:
         kind: HelmRepository
-        name: poc
+        name: ecr
         namespace: flux-system
       version: ">=0.1.0"
   values:
