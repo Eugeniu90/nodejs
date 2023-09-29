@@ -4,6 +4,6 @@ metadata:
   name: awsecr
 spec:
   interval: 10m
-  url: oci://ghcr.io/stefanprodan/manifests/podinfo
+  url: oci://ghcr.io/stefanprodan/manifests/podinfo #721703199068.dkr.ecr.eu-west-1.amazonaws.com/my-chart
   ref:
     tag: latest

@@ -3,3 +3,4 @@ kind: Kustomization
 
 resources:
 - nodejs.yaml
+- repo.yaml
