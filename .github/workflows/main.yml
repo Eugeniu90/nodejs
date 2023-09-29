@@ -91,7 +91,7 @@ jobs:
 
       - name: Update Helm Chart Version and start package process
         run: |
-          cd helm/poc 
+          cd helm/nodejs 
           
           # Read current version from Chart.yaml
           CHART_VERSION=$(cat Chart.yaml | grep version: | cut -d' ' -f2)
@@ -100,4 +100,4 @@ jobs:
 
           echo "Updated chart version to ${{ env.TAG_NAME }}."
           helm package .
-          helm push poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
+          helm push nodejs-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
