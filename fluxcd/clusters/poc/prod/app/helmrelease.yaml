@@ -1,7 +1,7 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: pocdemoapp
+  name: app
 spec:
   interval: 10m
   releaseName: poc
