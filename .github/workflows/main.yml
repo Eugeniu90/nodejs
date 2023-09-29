@@ -85,12 +85,21 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
 
+      - name: Update Helm Chart Version
+        run: |
+          cd helm/poc 
+          
+          # Read current version from Chart.yaml
+          CHART_VERSION=$(cat Chart.yaml | grep version: | cut -d' ' -f2)
+          
+          sed -i "s/version: .*/version: ${{ env.TAG_NAME }}/" Chart.yaml
+
+          echo "Updated chart version to ${{ env.TAG_NAME }}."
+
+
       - name: Package Helm chart
         run: |
-          # Change directories to where your chart is located
-          cd helm/poc
           helm package .
-
 
       - name: Login to ECR (for Helm)
         run: |
