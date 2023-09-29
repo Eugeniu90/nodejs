@@ -104,4 +104,3 @@ jobs:
           echo "Updated chart version to ${{ env.TAG_NAME }}."
           cd helm && helm package nodejs
           helm push nodejs-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
-        
