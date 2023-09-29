@@ -42,7 +42,7 @@ jobs:
         id: generate-tag
         run: |
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
-          TAG_NAME="latest"
+          TAG_NAME="0.0.0" # Adding default tag for main as 0.0.0
 
           if [ "$BRANCH_NAME" == "qa" ]; then
             LAST_TAG=$(git tag -l "0.*" | sort -V | tail -n 1)
