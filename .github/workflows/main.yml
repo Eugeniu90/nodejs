@@ -85,15 +85,29 @@ jobs:
           chmod 700 get_helm.sh
           ./get_helm.sh
 
-      - name: Package Helm chart
+      - name: Install Amazon ECR Public Gallery Helm Chart CLI
         run: |
-          # Change directories to where your chart is located
-          cd helm/poc
-          helm package . 
+          wget https://github.com/aws/amazon-ecr-public-gallery-helm-chart-cli/releases/download/v0.1.0/amazon-ecr-public-gallery-helm-chart-cli-linux-amd64.tar.gz
+          tar -xzvf amazon-ecr-public-gallery-helm-chart-cli-linux-amd64.tar.gz
+          sudo mv amazon-ecr-public-gallery-helm-chart-cli-linux-amd64/helm-ecr /usr/local/bin
 
-      - name: Login to ECR (for Helm)
+#      - name: Package Helm chart
+#        run: |
+#          # Change directories to where your chart is located
+#          cd helm/poc
+#          helm package .
+
+      - name: Push Helm chart to ECR
         run: |
-          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          export CHART=nodejs
+          export VERSION=${{ env.TAG_NAME }}
+          helm ecr login ${{ secrets.ECR_REGISTRY }} --username AWS --password-stdin "$(aws ecr get-login-password --region eu-west-1)"
+          helm package $CHART
+          helm ecr push ${{ secrets.ECR_REGISTRY }}/$CHART:$VERSION $CHART-$VERSION.tgz
+#
+#      - name: Login to ECR (for Helm)
+#        run: |
+#          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
       - name: Push Helm chart to ECR
         run: |
