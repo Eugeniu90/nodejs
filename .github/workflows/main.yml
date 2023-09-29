@@ -91,29 +91,17 @@ jobs:
           tar -xzvf amazon-ecr-public-gallery-helm-chart-cli-linux-amd64.tar.gz
           sudo mv amazon-ecr-public-gallery-helm-chart-cli-linux-amd64/helm-ecr /usr/local/bin
 
-#      - name: Package Helm chart
-#        run: |
-#          # Change directories to where your chart is located
-#          cd helm/poc
-#          helm package .
-
-      - name: Push Helm chart to ECR
+      - name: Package Helm chart
         run: |
-          export CHART=nodejs
-          export VERSION=${{ env.TAG_NAME }}
-          helm ecr login ${{ secrets.ECR_REGISTRY }} --username AWS --password-stdin "$(aws ecr get-login-password --region eu-west-1)"
-          helm package $CHART
-          helm ecr push ${{ secrets.ECR_REGISTRY }}/$CHART:$VERSION $CHART-$VERSION.tgz
-#
-#      - name: Login to ECR (for Helm)
-#        run: |
-#          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
+          # Change directories to where your chart is located
+          cd helm/poc
+          helm package .
 
-      - name: Push Helm chart to ECR
+
+      - name: Login to ECR (for Helm)
         run: |
-          # Adjust the chart and version accordingly
-          CHART_NAME=nodejs
-          CHART_VERSION=${{ env.TAG_NAME }}
-          helm chart save $CHART_NAME-$CHART_VERSION.tgz ${{ secrets.ECR_REGISTRY }}/$CHART_NAME:$CHART_VERSION
-          helm chart push ${{ secrets.ECR_REGISTRY }}/$CHART_NAME:$CHART_VERSION
+          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}
 
+      - name: Push helm chart to ECR
+        run: |
+          helm push poc-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
