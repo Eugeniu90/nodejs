@@ -12,6 +12,6 @@ spec:
         kind: HelmRepository
         name: ecr
         namespace: flux-system
-      version: "rc-1.0.0"
+      version: "1.0.0"
   values:
     network: mainnet
