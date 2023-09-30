@@ -1,106 +1,106 @@
-name: CI/CD Workflow
+# name: CI/CD Workflow
 
-on:
-  push:
-    branches:
-      - main
-      - qa
-      - prod
+# on:
+#   push:
+#     branches:
+#       - main
+#       - qa
+#       - prod
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # this is required to fetch all tags
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+#         with:
+#           fetch-depth: 0  # this is required to fetch all tags
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v2
+#         with:
+#           node-version: '14'
 
-      - name: Install dependencies
-        run: npm install
+#       - name: Install dependencies
+#         run: npm install
 
-      - name: Build Docker image
-        run: docker build -t nodejs .
+#       - name: Build Docker image
+#         run: docker build -t nodejs .
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-west-1
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: eu-west-1
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Generate tag based on branch
-        id: generate-tag
-        run: |
-          BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
-          TAG_NAME="0.0.0" # Adding default tag for main as 0.0.0
+#       - name: Generate tag based on branch
+#         id: generate-tag
+#         run: |
+#           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
+#           TAG_NAME="0.0.0" # Adding default tag for main as 0.0.0
 
-          if [ "$BRANCH_NAME" == "qa" ]; then
-            LAST_TAG=$(git tag -l "0.*" | sort -V | tail -n 1)
-            if [ -z "$LAST_TAG" ]; then
-              TAG_NAME="0.1.0"
-            else
-              PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
-              NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
-              TAG_NAME="0.1.$NEW_PATCH_VERSION"
-            fi
-          elif [ "$BRANCH_NAME" == "prod" ]; then
-            LAST_TAG=$(git tag -l "1.*" | sort -V | tail -n 1)
-            if [ -z "$LAST_TAG" ]; then
-              TAG_NAME="1.0.0"
-            else
-              PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
-              NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
-              TAG_NAME="1.0.$NEW_PATCH_VERSION"
-            fi
-          fi
+#           if [ "$BRANCH_NAME" == "qa" ]; then
+#             LAST_TAG=$(git tag -l "0.*" | sort -V | tail -n 1)
+#             if [ -z "$LAST_TAG" ]; then
+#               TAG_NAME="0.1.0"
+#             else
+#               PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
+#               NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
+#               TAG_NAME="0.1.$NEW_PATCH_VERSION"
+#             fi
+#           elif [ "$BRANCH_NAME" == "prod" ]; then
+#             LAST_TAG=$(git tag -l "1.*" | sort -V | tail -n 1)
+#             if [ -z "$LAST_TAG" ]; then
+#               TAG_NAME="1.0.0"
+#             else
+#               PATCH_VERSION=$(echo $LAST_TAG | cut -d '.' -f 3)
+#               NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
+#               TAG_NAME="1.0.$NEW_PATCH_VERSION"
+#             fi
+#           fi
 
-          echo "New tag: $TAG_NAME"
-          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
+#           echo "New tag: $TAG_NAME"
+#           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
 
-      - name: Tag and push Docker image to Amazon ECR
-        run: |
-          docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
-          docker push ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
+#       - name: Tag and push Docker image to Amazon ECR
+#         run: |
+#           docker tag nodejs:latest ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
+#           docker push ${{ secrets.ECR_REGISTRY }}/nodejs:${{ env.TAG_NAME }}
 
-      - name: Create Git Tag
-        run: |
-          if [ "$BRANCH_NAME" == "qa" ] || [ "$BRANCH_NAME" == "prod" ]; then
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git tag ${{ env.TAG_NAME }}
-          git push origin ${{ env.TAG_NAME }}
-          else 
-           echo "Main branch detected, skipping tag"
-          fi
+#       - name: Create Git Tag
+#         run: |
+#           if [ "$BRANCH_NAME" == "qa" ] || [ "$BRANCH_NAME" == "prod" ]; then
+#           git config user.name "github-actions"
+#           git config user.email "github-actions@github.com"
+#           git tag ${{ env.TAG_NAME }}
+#           git push origin ${{ env.TAG_NAME }}
+#           else 
+#            echo "Main branch detected, skipping tag"
+#           fi
 
-      - name: Install Helm
-        run: |
-          curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-          chmod 700 get_helm.sh
-          ./get_helm.sh
+#       - name: Install Helm
+#         run: |
+#           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+#           chmod 700 get_helm.sh
+#           ./get_helm.sh
 
-      - name: Login to ECR (for Helm)
-        run: |
-          aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}/nodejs
+#       - name: Login to ECR (for Helm)
+#         run: |
+#           aws ecr get-login-password --region eu-west-1 | helm registry login --username AWS --password-stdin ${{ secrets.ECR_REGISTRY }}/nodejs
 
-      - name: Update Helm Chart Version and start package process
-        run: |
+#       - name: Update Helm Chart Version and start package process
+#         run: |
           
-          # Read current version from Chart.yaml
-          CHART_VERSION=$(cat helm/nodejs/Chart.yaml | grep version: | cut -d' ' -f2)
+#           # Read current version from Chart.yaml
+#           CHART_VERSION=$(cat helm/nodejs/Chart.yaml | grep version: | cut -d' ' -f2)
           
-          sed -i "s/version: .*/version: ${{ env.TAG_NAME }}/" helm/nodejs/Chart.yaml
+#           sed -i "s/version: .*/version: ${{ env.TAG_NAME }}/" helm/nodejs/Chart.yaml
 
-          echo "Updated chart version to ${{ env.TAG_NAME }}."
-          cd helm && helm package nodejs
-          helm push nodejs-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
+#           echo "Updated chart version to ${{ env.TAG_NAME }}."
+#           cd helm && helm package nodejs
+#           helm push nodejs-${{ env.TAG_NAME }}.tgz oci://${{ secrets.ECR_REGISTRY }}
