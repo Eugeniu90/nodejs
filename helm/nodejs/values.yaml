@@ -8,7 +8,7 @@ image:
   repository: 721703199068.dkr.ecr.eu-west-1.amazonaws.com/nodejs
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "{{ .Chart.AppVersion }}"
+  tag: "docker-{{ .Chart.AppVersion }}"
 
 imagePullSecrets: []
 nameOverride: ""
