@@ -47,26 +47,26 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        env:
-        - name: DB_HOST
-          value: {{ .Values.db.host }}
-        - name: DB_NAME
-          value: {{ .Values.db.name }}
-        - name: DB_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: app-secret
-              key: password
-          value: {{ .Values.db.pass }}
-        - name: DB_USER
-          valueFrom:
-            secretKeyRef:
-              name: app-secret
-              key: user
-        - name: DB_PORT
-          value: "3306"
-        - name: if network
-          value: {{ .Values.network }}
+          env:
+            - name: DB_HOST
+              value: {{ .Values.db.host }}
+            - name: DB_NAME
+              value: {{ .Values.db.name }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: password
+              value: {{ .Values.db.pass }}
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: app-secret
+                  key: user
+            - name: DB_PORT
+              value: "3306"
+            - name: if network
+              value: {{ .Values.network }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
