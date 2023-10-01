@@ -99,10 +99,9 @@ jobs:
           # Read current version from Chart.yaml
           # CHART_VERSION=$(cat helm/nodejs/Chart.yaml | grep version: | cut -d' ' -f2)
           
+          sed -i "s/appVersion: .*/appVersion: ${{ env.TAG_NAME }}/" helm/nodejs/Chart.yaml
           sed -i "s/version: .*/version: ${{ env.TAG_NAME }}/" helm/nodejs/Chart.yaml
-          cat helm/nodejs/Chart.yaml
-          echo "====""
-          sed -i.bak "s/^version:/version: $APP_VERSION/" helm/nodejs/Chart.yaml
+          
           cat helm/nodejs/Chart.yaml
 
           echo "Updated chart version to ${{ env.TAG_NAME }}."
