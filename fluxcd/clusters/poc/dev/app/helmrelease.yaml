@@ -4,7 +4,7 @@ metadata:
   name: app
 spec:
   interval: 10m
-  releaseName: dummyapp
+  releaseName: app
   chart:
     spec:
       chart: nodejs
@@ -13,3 +13,5 @@ spec:
         name: ecr
         namespace: flux-system
       version: ">=0.1.0"
+  values:
+    network: rinkeby
