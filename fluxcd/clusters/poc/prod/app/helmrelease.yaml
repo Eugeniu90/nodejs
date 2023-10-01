@@ -4,7 +4,7 @@ metadata:
   name: app
 spec:
   interval: 10m
-  releaseName: dummyapp
+  releaseName: app
   chart:
     spec:
       chart: nodejs

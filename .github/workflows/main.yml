@@ -5,7 +5,7 @@ on:
     branches:
       - main
       - qa
-      - prod
+      - rc
 
 jobs:
   build:
@@ -43,7 +43,7 @@ jobs:
         run: |
           BRANCH_NAME=$(echo ${GITHUB_REF##*/} | tr / -)
           TAG_NAME="0.0.0" # Adding default tag for main as 0.0.0
-
+          echo  "BRANCH_NAME: ${BRANCH_NAME}"
           if [ "$BRANCH_NAME" == "main" ]; then
             LAST_TAG=$(git tag -l "0.*" | sort -V | tail -n 1)
             if [ -z "$LAST_TAG" ]; then
@@ -53,7 +53,7 @@ jobs:
               NEW_PATCH_VERSION=$((PATCH_VERSION + 1))
               TAG_NAME="0.1.$NEW_PATCH_VERSION"
             fi
-          elif [ "$BRANCH_NAME" == "prod" ]; then
+          elif [ "$BRANCH_NAME" == "rc" ]; then
             LAST_TAG=$(git tag -l "1.*" | sort -V | tail -n 1)
             if [ -z "$LAST_TAG" ]; then
               TAG_NAME="1.0.0"
@@ -74,14 +74,14 @@ jobs:
 
       - name: Create Git Tag
         run: |
-          if [ "$BRANCH_NAME" == "main" ] || [ "$BRANCH_NAME" == "prod" ]; then
+          # if [ "$BRANCH_NAME" == "main" ] || [ "$BRANCH_NAME" == "rc" ]; then
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
             git tag ${{ env.TAG_NAME }}
             git push origin ${{ env.TAG_NAME }}
-          else
-            echo "Main branch detected, skipping tag"
-          fi
+          # else
+          #   echo "Main branch detected, skipping tag"
+          # fi
 
       - name: Install Helm
         run: |
