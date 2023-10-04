@@ -34,7 +34,7 @@ app.post('/data', async (req, res) => {
   const data = req.body;
 
   try {
-    const result = await client.query('INSERT INTO your_table (data) VALUES ($1) RETURNING *', [data]);
+    const result = await client.query('INSERT INTO postgres (data) VALUES ($1) RETURNING *', [data]);
     console.log('Data inserted:', result.rows[0]);
     res.json({ status: 'Data received and stored in PostgreSQL', insertedData: result.rows[0] });
   } catch (error) {
