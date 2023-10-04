@@ -12,7 +12,14 @@ const dbConfig = {
 };
 
 const client = new Client(dbConfig);
-client.connect();
+
+client.connect(err => {
+  if (err) {
+    console.error('Connection error', err.stack);
+  } else {
+    console.log('Connected to database');
+  }
+});
 
 // Body parser middleware
 app.use(bodyParser.json());
@@ -27,16 +34,16 @@ app.post('/data', async (req, res) => {
   const data = req.body;
 
   try {
-    const result = await client.query('INSERT INTO your_table (data) VALUES ($1)', [JSON.stringify(data)]);
-    console.log('Data inserted:', result.rows);
-    res.json({ status: 'Data received and stored in RDS' });
+    const result = await client.query('INSERT INTO your_table (data) VALUES ($1) RETURNING *', [data]);
+    console.log('Data inserted:', result.rows[0]);
+    res.json({ status: 'Data received and stored in PostgreSQL', insertedData: result.rows[0] });
   } catch (error) {
     console.error('Error inserting data:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
