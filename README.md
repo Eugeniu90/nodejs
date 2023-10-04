@@ -190,3 +190,38 @@ const dbConfig = {
 ```
 
 7. Once we have all details in place, with new push to Dockerfile we will have application responding to us.
+8. Tunnel into application for seeing that is working as expected with the following command:
+```shell
+(ansible-venv) ➜  terraform git:(main) kubectl port-forward svc/app-nodejs -n dev 7001:80             
+Forwarding from 127.0.0.1:7001 -> 3000
+Forwarding from [::1]:7001 -> 3000
+```
+
+8.1 Response from aplpication:
+```shell
+(ansible-venv) ➜  nodejs git:(main) ✗ curl http://localhost:80
+<html><body><h1>It works!</h1></body></html>
+
+(ansible-venv) ➜  nodejs git:(main) ✗ curl http://localhost:80 -I 
+HTTP/1.1 200 OK
+Date: Wed, 04 Oct 2023 14:20:24 GMT
+Server: Apache/2.4.56 (Unix)
+Content-Location: index.html.en
+Vary: negotiate
+TCN: choice
+Last-Modified: Sat, 16 Sep 2023 13:28:30 GMT
+ETag: "2d-60579e287db80"
+Accept-Ranges: bytes
+Content-Length: 45
+Content-Type: text/html
+```
+
+8.2 Post example:
+```shell
+curl -X POST http://localhost:7001/data -H "Content-Type: application/json" -d '{"name": "John Doe", "age": 30}'
+```
+
+Output:
+```shell
+{"status":"Data received"}%
+```
