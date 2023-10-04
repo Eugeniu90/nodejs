@@ -1,4 +1,6 @@
 # Node JS
+This repository contains the codebase and deployment pipeline for deploying a Dockerized application on AWS EKS using Terraform. GitHub Actions manage the CI/CD processes, packaging is done through Helm, and Flux CD handles the deployment.
+
 
 ## Overview
 
@@ -197,7 +199,7 @@ Forwarding from 127.0.0.1:7001 -> 3000
 Forwarding from [::1]:7001 -> 3000
 ```
 
-8.1 Response from aplpication:
+8.1 Response from application:
 ```shell
 (ansible-venv) ➜  nodejs git:(main) ✗ curl http://localhost:80
 <html><body><h1>It works!</h1></body></html>
@@ -225,3 +227,99 @@ Output:
 ```shell
 {"status":"Data received"}%
 ```
+
+
+## Deployment
+
+1. Deployment itself it's performed via FluxCD which it's constantly pulling from Github as example:
+```shell
+  interval: 1m0s
+  ref:
+    branch: main
+  # secretRef:
+  #   name: flux-system
+  timeout: 20s
+  url: https://github.com/Eugeniu90/nodejs.git
+```
+Here we can see that in [flux](fluxcd/base/git-repository/git-repository.yaml) we are defining the pull method of deployment itself from Github repository.
+
+Convention -> `main` branch it's corresponding to all DEV environments, where `qa` branch it's connected to QA environment and `rc` to Production.
+Deployment it's being triggered based on tags.
+
+`QA` deployment triggered only based on this [definition](fluxcd/clusters/poc/dev/app/helmrelease.yaml):
+```shell
+      chart: nodejs
+      sourceRef:
+        kind: HelmRepository
+        name: ecr
+        namespace: flux-system
+      version: "<1.0.0 >=0.1.0"
+```
+`PROD` deployment triggered only based on this [definition](fluxcd/clusters/poc/prod/app/helmrelease.yaml)
+```shell
+  chart:
+    spec:
+      chart: nodejs
+      sourceRef:
+        kind: HelmRepository
+        name: ecr
+        namespace: flux-system
+      version: "1.0.0"
+```
+
+
+## Application Deployment Design
+
+
+## Design Decisions & Justifications
+
+### 1. **Docker Utilization:**
+- **Decision:** The application is containerized using Docker.
+- **Reason:**
+   - Ensures consistent environment across different stages.
+   - Facilitates seamless deployment and scaling in Kubernetes.
+
+### 2. **AWS EKS for Kubernetes:**
+- **Decision:** AWS EKS is selected for Kubernetes orchestration.
+- **Reason:**
+   - It simplifies the deployment, management, and scaling of applications.
+   - Offers high availability and scalability.
+
+### 3. **Terraform for IaC:**
+- **Decision:** Terraform is used for provisioning infrastructure.
+- **Reason:**
+   - Supports declarative configuration language.
+   - Supports AWS among multiple cloud providers.
+   - Facilitates infrastructure versioning and collaboration.
+
+### 4. **GitHub Actions for CI/CD:**
+- **Decision:** GitHub Actions is implemented for CI/CD.
+- **Reason:**
+   - Offers seamless integration with GitHub repositories.
+   - Provides flexibility with various pre-built and custom actions.
+
+### 5. **Helm for Application Packaging:**
+- **Decision:** Helm is utilized for packaging and deploying the application.
+- **Reason:**
+   - Makes deployment on Kubernetes easier by using charts.
+   - Charts can be versioned, shared, and published.
+
+### 6. **Flux CD for Deployment:**
+- **Decision:** Flux CD is used for continuous deployment.
+- **Reason:**
+   - Automates deployment by observing Git repositories for changes.
+   - Promotes GitOps best practices.
+
+## Security Considerations
+- **Decision:** Implement robust security practices.
+- **Reason:**
+   - AWS EKS provides features like VPC isolation and IAM integration.
+   - Sensitive data is handled securely using secrets management tools.
+   - Role-based access control (RBAC) is implemented in Kubernetes.
+
+
+### **Bonus Points**
+
+- Implement a cache layer for the API using Redis: N/A
+- Set up monitoring using Prometheus: Prometheus agent deployed, but didn't had time to deploy as well Grafana; can tell more about this on meeting. (Prometheus, Node Exporter, Loki, PushGateway, Promtail)
+- Implement logging and send logs to CloudWatch: VPC have CW logs enabled.
