@@ -4,7 +4,8 @@
   "description": "NodeJS Poc",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "pg": "^8.7.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
