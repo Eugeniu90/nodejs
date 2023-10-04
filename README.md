@@ -310,11 +310,6 @@ Deployment it's being triggered based on tags.
    - Automates deployment by observing Git repositories for changes.
    - Promotes GitOps best practices.
 
-### 7. **Semantic Versioning:**
-- **Decision:** Semantic versioning is implemented for the application.
-- **Reason:**
-   - Provides an understandable and standardized mechanism for releasing updates and patches.
-
 ## Security Considerations
 - **Decision:** Implement robust security practices.
 - **Reason:**
@@ -322,20 +317,9 @@ Deployment it's being triggered based on tags.
    - Sensitive data is handled securely using secrets management tools.
    - Role-based access control (RBAC) is implemented in Kubernetes.
 
-## Monitoring and Logging
-- **Decision:** Implement monitoring and logging solutions.
-- **Reason:**
-   - Crucial for performance tracking and real-time troubleshooting.
-   - AWS CloudWatch and various Kubernetes-native tools are integrated.
 
-## Future Growth
-- **Decision:** System design considers future growth and changes.
-- **Reason:**
-   - The modular architecture allows for easy changes and additions.
-   - The system can evolve with the technology landscape and organizational needs.
+### **Bonus Points**
 
-## Contributing
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+- Implement a cache layer for the API using Redis: N/A
+- Set up monitoring using Prometheus: Prometheus agent deployed, but didn't had time to deploy as well Grafana; can tell more about this on meeting. (Prometheus, Node Exporter, Loki, PushGateway, Promtail)
+- Implement logging and send logs to CloudWatch: VPC have CW logs enabled.
