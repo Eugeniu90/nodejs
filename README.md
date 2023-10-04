@@ -143,7 +143,6 @@ Image is pretty easy to read - it's using NPM 14 and once we copied package.json
 5. Release management strategy:
    - We will have 3 branches: [`main, qa ,rc`] which are our 3 environments and we have the following tagging in place for helm, branch and images.
    - `main`: will always have `latest` as tag.
-   - `qa`: tagging started from 0.1.0 and during each commit push into `qa` branch, we will have a new build triggered by GitHub actions which will increase the tag, update Helm chart version and increase Dockerfile image. 
    - `rc`tagging started from 1.0.0 and during each commit push into `rc` branch, we will have a new build triggered by GitHub actions which will increase the tag, update Helm chart version and increase Dockerfile image.
 
 Example of tags created after each build:
